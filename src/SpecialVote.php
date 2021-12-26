@@ -1,6 +1,4 @@
 <?php
-require_once __DIR__ . '/ElectionVoteRepository.php';
-
 class SpecialVote extends SpecialPage {
 	function __construct() {
 		parent::__construct('Vote');

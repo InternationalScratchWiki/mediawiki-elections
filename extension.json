@@ -10,10 +10,14 @@
 	},
 	"AutoloadClasses": {
 		"SpecialVote": "src/SpecialVote.php",
-		"ElectionHooks": "src/ElectionHooks.php"
+		"SpecialElectionResults": "src/SpecialElectionResults.php",
+		"ElectionHooks": "src/ElectionHooks.php",
+		"ElectionVoteLoader": "src/ElectionVoteRepository.php",
+		"ElectionVoteRepository": "src/ElectionVoteRepository.php"
 	},
 	"SpecialPages": {
-		"Vote": "SpecialVote"
+		"Vote": "SpecialVote",
+		"ElectionResults": "SpecialElectionResults"
 	},
 	"Hooks": {
 		"LoadExtensionSchemaUpdates": "ElectionHooks::onLoadExtensionSchemaUpdates"

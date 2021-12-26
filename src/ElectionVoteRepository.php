@@ -20,6 +20,20 @@ class ElectionVoteLoader {
 	function hasUserVoted(User $user) : bool {		
 		return $this->db->select('election_votes', ['1'], ['vote_election_id' => $this->electionId, 'vote_voter_id' => $user->getId()], __METHOD__)->numRows() > 0;
 	}
+	
+	function getResults(array $candidates) : array {
+		global $wgElectionCandidates;
+		
+		$numCandidates = sizeof($candidates);
+		
+		$result = $this->db->select('election_votes', ['candidateId' => 'vote_candidate_id', 'score' => $numCandidates . '*COUNT(vote_candidate_rank)-SUM(vote_candidate_rank)+1'], ['vote_election_id' => $this->electionId], __METHOD__, ['ORDER BY points DESC', 'GROUP BY' => 'vote_candidate_id']);
+		
+		$results = [];
+		foreach ($result as $row) {
+			$results[$candidates[$row->candidateId]] = $row->score;
+		}
+		return $results;
+	}
 }
 
 class ElectionVoteRepository extends ElectionVoteLoader {	
