@@ -1,0 +1,29 @@
+{
+	"name": "MediaWiki Election System",
+	"descriptionmsg": "scratch-confirmaccount-desc",
+	"author": ["Jacob G. (jvvg)"],
+	"url": "https://github.com/InternationalScratchWiki/mediawiki-elections",
+	"version": "0.1",
+	"license-name": "GPL-2.0-or-later",
+	"MessagesDirs": {
+		
+	},
+	"AutoloadClasses": {
+		"SpecialVote": "src/SpecialVote.php",
+		"ElectionHooks": "src/ElectionHooks.php"
+	},
+	"SpecialPages": {
+		"Vote": "SpecialVote"
+	},
+	"Hooks": {
+		"LoadExtensionSchemaUpdates": "ElectionHooks::onLoadExtensionSchemaUpdates"
+	},
+	"ResourceModules": {
+	},
+	"config": {
+		"ElectionActive": false,
+		"ElectionId": "00000000-0000-0000-0000-000000000000",
+		"ElectionCandidates": [],
+		"ElectionMinRegistrationDate": 0
+	}
+}
