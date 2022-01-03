@@ -33,6 +33,12 @@ class SpecialVote extends SpecialPage {
 		$output->addHTML('You have already voted.');
 	}
 	
+	function showBlockedPage() {
+		$output = $this->getOutput();
+		
+		$output->addHTML('You are blocked and cannot vote.');
+	}
+	
 	function showVoteForm() {
 		global $wgElectionCandidates;
 		$output = $this->getOutput();
@@ -70,6 +76,10 @@ class SpecialVote extends SpecialPage {
 		
 		if (!$wgElectionActive) {
 			$this->showElectionInactivePage(); return;
+		}
+		
+		if ($this->getUser()->getBlock()) {
+			$this->showBlockedPage(); return;
 		}
 		
 		$voteLoader = new ElectionVoteLoader(__METHOD__, $wgElectionId);
