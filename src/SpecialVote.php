@@ -10,6 +10,11 @@ class SpecialVote extends SpecialPage {
 		$request = $this->getRequest();
 		$output = $this->getOutput();
 		
+		if ( !$this->getUser()->matchEditToken( $request->getVal( 'token' ) ) ) {
+			$output->addHTML('CSRF error');
+			return;
+		}
+		
 		$votes = $request->getArray('candidateRank');
 		$voteRepo = new ElectionVoteRepository(__METHOD__, $wgElectionId);
 		$message = $voteRepo->addVotes($this->getUser(), $votes);
@@ -72,6 +77,8 @@ class SpecialVote extends SpecialPage {
 		}
 		$output->addHTML(Html::closeElement('table'));
 		
+		$output->addHTML(Html::hidden('token', $this->getUser()->getEditToken()));
+
 		$output->addHTML(Html::element('input', ['type' => 'submit', 'value' => 'Vote']));
 		
 		$output->addHTML(Html::closeElement('form'));
