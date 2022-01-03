@@ -75,13 +75,14 @@ class ElectionVoteRepository extends ElectionVoteLoader {
 	function addVotes(User $user, array $votes) : ?string {
 		$this->db->startAtomic(__METHOD__);
 		
-		if ($this->hasUserVoted($user)) {
-			return 'You have already voted';;
-		}
-		
 		$validationError = $this->validateVotes($votes);
 		if ($validationError) {
 			return $validationError;
+		}
+		
+		$this->db->insert('election_voters', ['voter_election_id' => $this->electionId, 'voter_voter_id' => $user->getId()], __METHOD__, ['IGNORE']);
+		if (!$this->db->insertID()) {
+			return 'You have already voted';
 		}
 		
 		$this->db->insert('election_votes', array_map(function ($candidateId, $rank) use($user) {
