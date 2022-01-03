@@ -80,6 +80,10 @@ class ElectionVoteRepository extends ElectionVoteLoader {
 			return $validationError;
 		}
 		
+		if ($user->getBlock()) {
+			return 'You are blocked.';
+		}
+				
 		$this->db->insert('election_voters', ['voter_election_id' => $this->electionId, 'voter_voter_id' => $user->getId()], __METHOD__, ['IGNORE']);
 		if (!$this->db->insertID()) {
 			return 'You have already voted';
