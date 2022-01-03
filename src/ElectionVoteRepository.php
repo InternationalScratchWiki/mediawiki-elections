@@ -73,6 +73,8 @@ class ElectionVoteRepository extends ElectionVoteLoader {
 	}
 	
 	function addVotes(User $user, array $votes) : ?string {
+		global $wgElectionMinRegistrationDate;
+		
 		$this->db->startAtomic(__METHOD__);
 		
 		$validationError = $this->validateVotes($votes);
@@ -82,6 +84,10 @@ class ElectionVoteRepository extends ElectionVoteLoader {
 		
 		if ($user->getBlock()) {
 			return 'You are blocked.';
+		}
+		
+		if (wfTimestamp(TS_UNIX, $user->getRegistration()) < $wgElectionMinRegistrationDate) {
+			return 'Your account was created too recently.';
 		}
 				
 		$this->db->insert('election_voters', ['voter_election_id' => $this->electionId, 'voter_voter_id' => $user->getId()], __METHOD__, ['IGNORE']);

@@ -39,6 +39,12 @@ class SpecialVote extends SpecialPage {
 		$output->addHTML('You are blocked and cannot vote.');
 	}
 	
+	function showUserTooNewPage() {
+		$output = $this->getOutput();
+		
+		$output->addHTML('Your account was created too recently.');
+	}
+	
 	function showVoteForm() {
 		global $wgElectionCandidates;
 		$output = $this->getOutput();
@@ -72,7 +78,7 @@ class SpecialVote extends SpecialPage {
 	}
 	
 	function showVotePage() {
-		global $wgElectionActive, $wgElectionId;
+		global $wgElectionActive, $wgElectionId, $wgElectionMinRegistrationDate;
 		
 		if (!$wgElectionActive) {
 			$this->showElectionInactivePage(); return;
@@ -80,6 +86,10 @@ class SpecialVote extends SpecialPage {
 		
 		if ($this->getUser()->getBlock()) {
 			$this->showBlockedPage(); return;
+		}
+		
+		if (wfTimestamp(TS_UNIX, $this->getUser()->getRegistration()) < $wgElectionMinRegistrationDate) {
+			$this->showUserTooNewPage(); return;
 		}
 		
 		$voteLoader = new ElectionVoteLoader(__METHOD__, $wgElectionId);
