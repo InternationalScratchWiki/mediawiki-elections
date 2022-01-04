@@ -1,7 +1,7 @@
 <?php
 class SpecialVote extends SpecialPage {
 	function __construct() {
-		parent::__construct('Vote');
+		parent::__construct('Vote', 'vote');
 	}
 	
 	function handleVoteSubmission() {
@@ -16,11 +16,17 @@ class SpecialVote extends SpecialPage {
 		}
 		
 		$votes = $request->getArray('candidateRank');
+		if (!is_array($votes)) {
+			// Most likely just clicked Vote without selecting anything
+			$output->addHTML('Please select the rank for each candidate.');
+			return;
+		}
 		$voteRepo = new ElectionVoteRepository(__METHOD__, $wgElectionId);
 		$message = $voteRepo->addVotes($this->getUser(), $votes);
 		
 		if ($message) {
-			echo $message; die;
+			$output->addHTML($message);
+			return;
 		}
 		
 		$output->addHTML('Thank you for voting');
@@ -56,14 +62,24 @@ class SpecialVote extends SpecialPage {
 				
 		$numCandidates = sizeof($wgElectionCandidates);
 		
-		$output->addHTML(Html::openElement('form', ['method' => 'post', 'enctype' => 'multipart/form-data', 'action' => ''])); // TODO: get the action right
+		$output->addHTML(Html::openElement('form', [
+			'method' => 'post',
+			'enctype' => 'multipart/form-data',
+			'action' => SpecialPage::getTitleFor('Vote')->getFullURL()
+		]));
 		
 		$output->addHTML(Html::openElement('table'));
 		
 		$output->addHTML(Html::openElement('tr'));
 		$output->addHTML(Html::element('th', ['scope' => 'row']));
 		for ($rankIdx = 1; $rankIdx <= $numCandidates; $rankIdx++) {
-			$output->addHTML(Html::element('th', ['scope' => 'col'], $rankIdx));
+			$colHeader = $rankIdx;
+			if ($rankIdx === 1) {
+				$colHeader = "$rankIdx (most preferred)";
+			} elseif ($rankIdx === $numCandidates) {
+				$colHeader = "$rankIdx (least preferred)";
+			}
+			$output->addHTML(Html::element('th', ['scope' => 'col'], $colHeader));
 		}
 		$output->addHTML(Html::closeElement('tr'));
 		
@@ -109,6 +125,9 @@ class SpecialVote extends SpecialPage {
 	
 	function execute($par) {
 		$request = $this->getRequest();
+		$this->getOutput()->setPageTitle('Vote');
+		$this->checkPermissions();
+		$this->checkReadOnly();
 		
 		if ($request->wasPosted()) {
 			$this->handleVoteSubmission();

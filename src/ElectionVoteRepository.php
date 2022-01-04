@@ -45,62 +45,66 @@ class ElectionVoteRepository extends ElectionVoteLoader {
 		global $wgElectionCandidates;
 		
 		$numCandidates = sizeof($wgElectionCandidates);
+		
+		// Duplicate ranks or missing ranks
 		if (sizeof(array_unique($votes)) < $numCandidates) {
-			// TODO: show an error message
-			echo 'Candidate ranks must be unique';
-			die;
+			return 'Candidate ranks must be unique, and you must select the rank for each candidate';
 		}
 		
-		if (sizeof(
-				array_filter(
-					array_keys($wgElectionCandidates),
-					function ($candidateId) use ($votes, $numCandidates) { 
-						if (!array_key_exists($candidateId, $votes))
-							return false;
-						
-						if ($votes[$candidateId] < 1 || $votes[$candidateId] > $numCandidates)
-							return false;
-						
-						return true;
-					}
-				)
-			)			
-			!= $numCandidates) {
-			return 'Illegal voting';
+		foreach ($votes as $candidateId => $score) {
+			// Tried to vote for non-candidate
+			if (!array_key_exists($candidateId, $wgElectionCandidates)) {
+				return 'Illegal voting';
+			}
+			$vote = $votes[$candidateId];
+			$rank = intval($vote);
+			// Rank is not the canonical representation of an integer
+			if (!ctype_digit($vote) || strval($rank) !== $vote) {
+				return 'Illegal voting';
+			}
+			// Rank is outside the range
+			if ($rank < 1 || $rank > $numCandidates) {
+				return 'Illegal voting';
+			}
 		}
 		
 		return null;
 	}
 	
 	function addVotes(User $user, array $votes) : ?string {
-		global $wgElectionMinRegistrationDate;
+		global $wgElectionActive, $wgElectionMinRegistrationDate;
 		
 		$this->db->startAtomic(__METHOD__);
 		
-		$validationError = $this->validateVotes($votes);
-		if ($validationError) {
-			return $validationError;
+		try {
+			$validationError = $this->validateVotes($votes);
+			if ($validationError) {
+				return $validationError;
+			}
+			
+			if (!$wgElectionActive) {
+				return 'There is no election.';
+			}
+			
+			if ($user->getBlock()) {
+				return 'You are blocked.';
+			}
+			
+			if (wfTimestamp(TS_UNIX, $user->getRegistration()) < $wgElectionMinRegistrationDate) {
+				return 'Your account was created too recently.';
+			}
+					
+			$this->db->insert('election_voters', ['voter_election_id' => $this->electionId, 'voter_voter_id' => $user->getId()], __METHOD__, ['IGNORE']);
+			if (!$this->db->insertID()) {
+				return 'You have already voted';
+			}
+			
+			$this->db->insert('election_votes', array_map(function ($candidateId, $rank) use($user) {
+				return ['vote_election_id' => $this->electionId, 'vote_voter_id' => $user->getId(), 'vote_candidate_id' => $candidateId, 'vote_candidate_rank' => $rank];
+			}, array_keys($votes), array_values($votes)), __METHOD__);
+		} finally {
+			$this->db->endAtomic(__METHOD__);
 		}
-		
-		if ($user->getBlock()) {
-			return 'You are blocked.';
-		}
-		
-		if (wfTimestamp(TS_UNIX, $user->getRegistration()) < $wgElectionMinRegistrationDate) {
-			return 'Your account was created too recently.';
-		}
-				
-		$this->db->insert('election_voters', ['voter_election_id' => $this->electionId, 'voter_voter_id' => $user->getId()], __METHOD__, ['IGNORE']);
-		if (!$this->db->insertID()) {
-			return 'You have already voted';
-		}
-		
-		$this->db->insert('election_votes', array_map(function ($candidateId, $rank) use($user) {
-			return ['vote_election_id' => $this->electionId, 'vote_voter_id' => $user->getId(), 'vote_candidate_id' => $candidateId, 'vote_candidate_rank' => $rank];
-		}, array_keys($votes), array_values($votes)), __METHOD__);
-		
-		$this->db->endAtomic(__METHOD__);
-		
 		return null;
 	}
 }
