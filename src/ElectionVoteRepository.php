@@ -72,7 +72,7 @@ class ElectionVoteRepository extends ElectionVoteLoader {
 	}
 	
 	function addVotes(User $user, array $votes) : ?string {
-		global $wgElectionMinRegistrationDate;
+		global $wgElectionActive, $wgElectionMinRegistrationDate;
 		
 		$this->db->startAtomic(__METHOD__);
 		
@@ -80,6 +80,10 @@ class ElectionVoteRepository extends ElectionVoteLoader {
 			$validationError = $this->validateVotes($votes);
 			if ($validationError) {
 				return $validationError;
+			}
+			
+			if (!$wgElectionActive) {
+				return 'There is no election.';
 			}
 			
 			if ($user->getBlock()) {
