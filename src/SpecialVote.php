@@ -62,7 +62,11 @@ class SpecialVote extends SpecialPage {
 				
 		$numCandidates = sizeof($wgElectionCandidates);
 		
-		$output->addHTML(Html::openElement('form', ['method' => 'post', 'enctype' => 'multipart/form-data', 'action' => ''])); // TODO: get the action right
+		$output->addHTML(Html::openElement('form', [
+			'method' => 'post',
+			'enctype' => 'multipart/form-data',
+			'action' => SpecialPage::getTitleFor('Vote')->getFullURL()
+		]));
 		
 		$output->addHTML(Html::openElement('table'));
 		
