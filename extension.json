@@ -1,12 +1,14 @@
 {
 	"name": "MediaWiki Election System",
-	"descriptionmsg": "scratch-confirmaccount-desc",
-	"author": ["Jacob G. (jvvg)"],
+	"descriptionmsg": "election-desc",
+	"author": ["Jacob G. (jvvg)", "apple502j"],
 	"url": "https://github.com/InternationalScratchWiki/mediawiki-elections",
 	"version": "0.1",
 	"license-name": "GPL-2.0-or-later",
 	"MessagesDirs": {
-		
+		"mediawiki-elections": [
+			"i18n"
+		]
 	},
 	"AutoloadClasses": {
 		"SpecialVote": "src/SpecialVote.php",
