@@ -20,7 +20,8 @@ class SpecialVote extends SpecialPage {
 		$message = $voteRepo->addVotes($this->getUser(), $votes);
 		
 		if ($message) {
-			echo $message; die;
+			$output->addHTML($message);
+			return;
 		}
 		
 		$output->addHTML('Thank you for voting');

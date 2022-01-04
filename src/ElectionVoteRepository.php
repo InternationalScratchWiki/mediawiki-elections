@@ -46,9 +46,7 @@ class ElectionVoteRepository extends ElectionVoteLoader {
 		
 		$numCandidates = sizeof($wgElectionCandidates);
 		if (sizeof(array_unique($votes)) < $numCandidates) {
-			// TODO: show an error message
-			echo 'Candidate ranks must be unique';
-			die;
+			return 'Candidate ranks must be unique';
 		}
 		
 		if (sizeof(
@@ -77,30 +75,31 @@ class ElectionVoteRepository extends ElectionVoteLoader {
 		
 		$this->db->startAtomic(__METHOD__);
 		
-		$validationError = $this->validateVotes($votes);
-		if ($validationError) {
-			return $validationError;
+		try {
+			$validationError = $this->validateVotes($votes);
+			if ($validationError) {
+				return $validationError;
+			}
+			
+			if ($user->getBlock()) {
+				return 'You are blocked.';
+			}
+			
+			if (wfTimestamp(TS_UNIX, $user->getRegistration()) < $wgElectionMinRegistrationDate) {
+				return 'Your account was created too recently.';
+			}
+					
+			$this->db->insert('election_voters', ['voter_election_id' => $this->electionId, 'voter_voter_id' => $user->getId()], __METHOD__, ['IGNORE']);
+			if (!$this->db->insertID()) {
+				return 'You have already voted';
+			}
+			
+			$this->db->insert('election_votes', array_map(function ($candidateId, $rank) use($user) {
+				return ['vote_election_id' => $this->electionId, 'vote_voter_id' => $user->getId(), 'vote_candidate_id' => $candidateId, 'vote_candidate_rank' => $rank];
+			}, array_keys($votes), array_values($votes)), __METHOD__);
+		} finally {
+			$this->db->endAtomic(__METHOD__);
 		}
-		
-		if ($user->getBlock()) {
-			return 'You are blocked.';
-		}
-		
-		if (wfTimestamp(TS_UNIX, $user->getRegistration()) < $wgElectionMinRegistrationDate) {
-			return 'Your account was created too recently.';
-		}
-				
-		$this->db->insert('election_voters', ['voter_election_id' => $this->electionId, 'voter_voter_id' => $user->getId()], __METHOD__, ['IGNORE']);
-		if (!$this->db->insertID()) {
-			return 'You have already voted';
-		}
-		
-		$this->db->insert('election_votes', array_map(function ($candidateId, $rank) use($user) {
-			return ['vote_election_id' => $this->electionId, 'vote_voter_id' => $user->getId(), 'vote_candidate_id' => $candidateId, 'vote_candidate_rank' => $rank];
-		}, array_keys($votes), array_values($votes)), __METHOD__);
-		
-		$this->db->endAtomic(__METHOD__);
-		
 		return null;
 	}
 }
