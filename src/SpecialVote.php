@@ -110,6 +110,7 @@ class SpecialVote extends SpecialPage {
 	
 	function execute($par) {
 		$request = $this->getRequest();
+		$this->getOutput()->setPageTitle('Vote');
 		
 		if ($request->wasPosted()) {
 			$this->handleVoteSubmission();

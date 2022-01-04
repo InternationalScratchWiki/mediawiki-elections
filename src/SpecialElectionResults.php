@@ -8,6 +8,7 @@ class SpecialElectionResults extends SpecialPage {
 		global $wgElectionActive, $wgElectionId, $wgElectionCandidates;
 		
 		$output = $this->getOutput();
+		$output->setPageTitle('Election results');
 		
 		$voteLoader = new ElectionVoteLoader(__METHOD__, $wgElectionId);
 		$results = $voteLoader->getResults($wgElectionCandidates);
