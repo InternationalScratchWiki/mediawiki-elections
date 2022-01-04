@@ -8,7 +8,7 @@ class SpecialElectionResults extends SpecialPage {
 		global $wgElectionActive, $wgElectionId, $wgElectionCandidates;
 		
 		$output = $this->getOutput();
-		$output->setPageTitle('Election results');
+		$output->setPageTitle($this->msg('election-viewelectionresults-title')->escaped());
 		
 		$this->checkPermissions();
 		
@@ -16,11 +16,21 @@ class SpecialElectionResults extends SpecialPage {
 		$results = $voteLoader->getResults($wgElectionCandidates);
 		
 		if (empty($results)) {
-			$output->addHTML('There are no votes to display.');
+			$output->addWikiMsg('election-viewelectionresults-empty');
 			return;
 		}
 		
-		$output->addHTML(Html::openElement('table'));
+		$output->addWikiMsg('election-viewelectionresults-description');
+		
+		$output->addHTML(Html::openElement('table', ['class' => 'wikitable']));
+		$output->addHTML(Html::openElement('thead'));
+		$output->addHTML(Html::openElement('tr'));
+		
+		$output->addHTML(Html::element('th', ['scope' => 'col'], $this->msg('election-viewelectionresults-candidate')->text()));
+		$output->addHTML(Html::element('th', ['scope' => 'col'], $this->msg('election-viewelectionresults-score')->text()));
+		
+		$output->addHTML(Html::closeElement('tr'));
+		$output->addHTML(Html::closeElement('thead'));
 		foreach ($results as $candidate => $score) {
 			$output->addHTML(Html::openElement('tr'));
 			

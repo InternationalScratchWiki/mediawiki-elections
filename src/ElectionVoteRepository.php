@@ -48,23 +48,23 @@ class ElectionVoteRepository extends ElectionVoteLoader {
 		
 		// Duplicate ranks or missing ranks
 		if (sizeof(array_unique($votes)) < $numCandidates) {
-			return 'Candidate ranks must be unique, and you must select the rank for each candidate';
+			return 'duplicate-missing';
 		}
 		
 		foreach ($votes as $candidateId => $score) {
 			// Tried to vote for non-candidate
 			if (!array_key_exists($candidateId, $wgElectionCandidates)) {
-				return 'Illegal voting';
+				return 'illegal-voting';
 			}
 			$vote = $votes[$candidateId];
 			$rank = intval($vote);
 			// Rank is not the canonical representation of an integer
 			if (!ctype_digit($vote) || strval($rank) !== $vote) {
-				return 'Illegal voting';
+				return 'illegal-voting';
 			}
 			// Rank is outside the range
 			if ($rank < 1 || $rank > $numCandidates) {
-				return 'Illegal voting';
+				return 'illegal-voting';
 			}
 		}
 		
@@ -83,20 +83,20 @@ class ElectionVoteRepository extends ElectionVoteLoader {
 			}
 			
 			if (!$wgElectionActive) {
-				return 'There is no election.';
+				return 'inactive';
 			}
 			
 			if ($user->getBlock()) {
-				return 'You are blocked.';
+				return 'blocked';
 			}
 			
 			if (wfTimestamp(TS_UNIX, $user->getRegistration()) < $wgElectionMinRegistrationDate) {
-				return 'Your account was created too recently.';
+				return 'age';
 			}
 					
 			$this->db->insert('election_voters', ['voter_election_id' => $this->electionId, 'voter_voter_id' => $user->getId()], __METHOD__, ['IGNORE']);
 			if (!$this->db->insertID()) {
-				return 'You have already voted';
+				return 'voted';
 			}
 			
 			$this->db->insert('election_votes', array_map(function ($candidateId, $rank) use($user) {
