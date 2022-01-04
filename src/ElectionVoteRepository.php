@@ -55,6 +55,10 @@ class ElectionVoteRepository extends ElectionVoteLoader {
 					function ($candidateId) use ($votes, $numCandidates) { 
 						if (!array_key_exists($candidateId, $votes))
 							return false;
+						$vote = $votes[$candidateId];
+						// 0.1, 01, 1e0, etc...
+						if (!ctype_digit($vote) || strval(intval($vote)) !== $vote)
+							return false;
 						
 						if ($votes[$candidateId] < 1 || $votes[$candidateId] > $numCandidates)
 							return false;
