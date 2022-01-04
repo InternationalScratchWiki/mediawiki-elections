@@ -45,30 +45,27 @@ class ElectionVoteRepository extends ElectionVoteLoader {
 		global $wgElectionCandidates;
 		
 		$numCandidates = sizeof($wgElectionCandidates);
+		
+		// Duplicate ranks or missing ranks
 		if (sizeof(array_unique($votes)) < $numCandidates) {
-			return 'Candidate ranks must be unique';
+			return 'Candidate ranks must be unique, and you must select the rank for each candidate';
 		}
 		
-		if (sizeof(
-				array_filter(
-					array_keys($wgElectionCandidates),
-					function ($candidateId) use ($votes, $numCandidates) { 
-						if (!array_key_exists($candidateId, $votes))
-							return false;
-						$vote = $votes[$candidateId];
-						// 0.1, 01, 1e0, etc...
-						if (!ctype_digit($vote) || strval(intval($vote)) !== $vote)
-							return false;
-						
-						if ($votes[$candidateId] < 1 || $votes[$candidateId] > $numCandidates)
-							return false;
-						
-						return true;
-					}
-				)
-			)			
-			!= $numCandidates) {
-			return 'Illegal voting';
+		foreach ($votes as $candidateId => $score) {
+			// Tried to vote for non-candidate
+			if (!array_key_exists($candidateId, $wgElectionCandidates)) {
+				return 'Illegal voting';
+			}
+			$vote = $votes[$candidateId];
+			$rank = intval($vote);
+			// Rank is not the canonical representation of an integer
+			if (!ctype_digit($vote) || strval($rank) !== $vote) {
+				return 'Illegal voting';
+			}
+			// Rank is outside the range
+			if ($rank < 1 || $rank > $numCandidates) {
+				return 'Illegal voting';
+			}
 		}
 		
 		return null;
