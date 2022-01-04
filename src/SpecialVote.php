@@ -64,7 +64,13 @@ class SpecialVote extends SpecialPage {
 		$output->addHTML(Html::openElement('tr'));
 		$output->addHTML(Html::element('th', ['scope' => 'row']));
 		for ($rankIdx = 1; $rankIdx <= $numCandidates; $rankIdx++) {
-			$output->addHTML(Html::element('th', ['scope' => 'col'], $rankIdx));
+			$colHeader = $rankIdx;
+			if ($rankIdx === 1) {
+				$colHeader = "$rankIdx (most preferred)";
+			} elseif ($rankIdx === $numCandidates) {
+				$colHeader = "$rankIdx (least preferred)";
+			}
+			$output->addHTML(Html::element('th', ['scope' => 'col'], $colHeader));
 		}
 		$output->addHTML(Html::closeElement('tr'));
 		
