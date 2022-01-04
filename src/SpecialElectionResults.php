@@ -10,6 +10,8 @@ class SpecialElectionResults extends SpecialPage {
 		$output = $this->getOutput();
 		$output->setPageTitle('Election results');
 		
+		$this->checkPermissions();
+		
 		$voteLoader = new ElectionVoteLoader(__METHOD__, $wgElectionId);
 		$results = $voteLoader->getResults($wgElectionCandidates);
 		
