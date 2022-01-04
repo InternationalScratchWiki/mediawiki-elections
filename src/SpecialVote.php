@@ -127,6 +127,7 @@ class SpecialVote extends SpecialPage {
 		$request = $this->getRequest();
 		$this->getOutput()->setPageTitle('Vote');
 		$this->checkPermissions();
+		$this->checkReadOnly();
 		
 		if ($request->wasPosted()) {
 			$this->handleVoteSubmission();
