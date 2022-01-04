@@ -1,7 +1,7 @@
 <?php
 class SpecialVote extends SpecialPage {
 	function __construct() {
-		parent::__construct('Vote');
+		parent::__construct('Vote', 'vote');
 	}
 	
 	function handleVoteSubmission() {
@@ -111,6 +111,7 @@ class SpecialVote extends SpecialPage {
 	function execute($par) {
 		$request = $this->getRequest();
 		$this->getOutput()->setPageTitle('Vote');
+		$this->checkPermissions();
 		
 		if ($request->wasPosted()) {
 			$this->handleVoteSubmission();
