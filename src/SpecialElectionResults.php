@@ -15,6 +15,11 @@ class SpecialElectionResults extends SpecialPage {
 		$voteLoader = new ElectionVoteLoader(__METHOD__, $wgElectionId);
 		$results = $voteLoader->getResults($wgElectionCandidates);
 		
+		if (empty($results)) {
+			$output->addHTML('There are no votes to display.');
+			return;
+		}
+		
 		$output->addHTML(Html::openElement('table'));
 		foreach ($results as $candidate => $score) {
 			$output->addHTML(Html::openElement('tr'));
