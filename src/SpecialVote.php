@@ -16,6 +16,11 @@ class SpecialVote extends SpecialPage {
 		}
 		
 		$votes = $request->getArray('candidateRank');
+		if (!is_array($votes)) {
+			// Most likely just clicked Vote without selecting anything
+			$output->addHTML('Please select the rank for each candidate.');
+			return;
+		}
 		$voteRepo = new ElectionVoteRepository(__METHOD__, $wgElectionId);
 		$message = $voteRepo->addVotes($this->getUser(), $votes);
 		
