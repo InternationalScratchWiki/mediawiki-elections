@@ -99,12 +99,15 @@ class SpecialVote extends SpecialPage {
 			$output->addHTML(Html::openElement('tr'));
 			$output->addHTML(Html::element('th', ['scope' => 'row'], $candidateName));
 			for ($rankIdx = 1; $rankIdx <= $numCandidates; $rankIdx++) {
-				$output->addHTML(Html::rawElement('td', [], Html::element('input', [
-					'type' => 'radio',
-					'name' => 'candidateRank[' . $candidateId . ']',
-					'value' => $rankIdx,
-					'required' => 'true'
-				])));
+				$output->addHTML(Html::rawElement(
+					'td', ['style' => 'text-align: center'],
+					Html::element('input', [
+						'type' => 'radio',
+						'name' => 'candidateRank[' . $candidateId . ']',
+						'value' => $rankIdx,
+						'required' => 'true'
+					])
+				));
 			}
 			$output->addHTML(Html::closeElement('tr'));
 		}
