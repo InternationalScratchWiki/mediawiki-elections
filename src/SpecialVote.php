@@ -101,9 +101,7 @@ class SpecialVote extends SpecialPage {
 			for ($rankIdx = 1; $rankIdx <= $numCandidates; $rankIdx++) {
 				$output->addHTML(Html::rawElement(
 					'td', ['style' => 'text-align: center'],
-					Html::element('input', [
-						'type' => 'radio',
-						'name' => 'candidateRank[' . $candidateId . ']',
+					Html::radio('candidateRank[' . $candidateId . ']', false, [
 						'value' => $rankIdx,
 						'required' => 'true'
 					])
