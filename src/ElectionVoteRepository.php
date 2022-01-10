@@ -29,7 +29,7 @@ class ElectionVoteLoader {
 			'candidateId' => 'vote_candidate_id',
 			'score' => $numCandidates . '*COUNT(vote_candidate_rank)-SUM(vote_candidate_rank)+1'
 		], ['vote_election_id' => $this->electionId], __METHOD__, [
-			'ORDER BY points DESC', 'GROUP BY' => 'vote_candidate_id'
+			'ORDER BY score DESC', 'GROUP BY' => 'vote_candidate_id'
 		]);
 
 		$results = [];
