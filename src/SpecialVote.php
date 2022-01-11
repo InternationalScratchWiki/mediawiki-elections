@@ -67,7 +67,7 @@ class SpecialVote extends SpecialPage {
 	}
 
 	function showVoteForm() {
-		global $wgElectionCandidates;
+		global $wgElectionCandidates, $wgElectionCountMethod;
 		$output = $this->getOutput();
 
 		$numCandidates = count($wgElectionCandidates);
@@ -80,8 +80,42 @@ class SpecialVote extends SpecialPage {
 			'action' => $this->getPageTitle()->getFullURL()
 		]));
 
-		$output->addHTML(Html::openElement('table'));
+		$output->addHTML(Html::openElement('table', ['class' => 'wikitable']));
 
+	switch ($wgElectionCountMethod) {
+	case 'confidence':
+		$output->addHTML(Html::openElement('tr'));
+		$output->addHTML(Html::element('th', ['scope' => 'row']));
+		$output->addHTML(Html::element(
+			'th', ['scope' => 'col'],
+			$this->msg('election-vote-yes')->text()
+		));
+		$output->addHTML(Html::element(
+			'th', ['scope' => 'col'],
+			$this->msg('election-vote-no')->text()
+		));
+		$output->addHTML(Html::closeElement('tr'));
+
+		foreach ($wgElectionCandidates as $candidateId => $candidateName) {
+			$output->addHTML(Html::openElement('tr'));
+			$output->addHTML(Html::element('th', ['scope' => 'row'], $candidateName));
+			$output->addHTML(Html::rawElement(
+				'td', ['style' => 'text-align: center'],
+				Html::radio('candidateRank[' . $candidateId . ']', false, [
+					'value' => 1
+				])
+			));
+			$output->addHTML(Html::rawElement(
+				'td', ['style' => 'text-align: center'],
+				Html::radio('candidateRank[' . $candidateId . ']', false, [
+					'value' => 0
+				])
+			));
+			$output->addHTML(Html::closeElement('tr'));
+		}
+		break;
+	case 'borda':
+	default:
 		$output->addHTML(Html::openElement('tr'));
 		$output->addHTML(Html::element('th', ['scope' => 'row']));
 		for ($rankIdx = 1; $rankIdx <= $numCandidates; $rankIdx++) {
@@ -102,13 +136,13 @@ class SpecialVote extends SpecialPage {
 				$output->addHTML(Html::rawElement(
 					'td', ['style' => 'text-align: center'],
 					Html::radio('candidateRank[' . $candidateId . ']', false, [
-						'value' => $rankIdx,
-						'required' => 'true'
+						'value' => $rankIdx
 					])
 				));
 			}
 			$output->addHTML(Html::closeElement('tr'));
 		}
+	}
 		$output->addHTML(Html::closeElement('table'));
 
 		$output->addHTML(Html::hidden('token', $this->getUser()->getEditToken()));

@@ -1,4 +1,5 @@
 {
+  "vote": "Vote in an election",
   "right-vote": "Vote",
   "right-viewelectionresults": "View election results",
   "action-vote": "vote",
@@ -16,10 +17,16 @@
   "election-viewelectionresults-description": "This is the score for the most recent election.",
   "election-viewelectionresults-candidate": "Candidate",
   "election-viewelectionresults-score": "Score",
+  "election-viewelectionresults-score-display": "$1 (from $2 {{PLURAL:$2|vote|votes}})",
+  "election-viewelectionresults-result": "Result",
+  "election-viewelectionresults-yes": "Yes ($1 {{PLURAL:$1|vote|votes}} for/$2 total)",
+  "election-viewelectionresults-no": "No ($1 {{PLURAL:$1|vote|votes}} for/$2 total)",
   "election-vote-thanks": "Thank you for voting.",
   "election-vote-description": "Please rank each of these candidates in order of preference, from $1 (most preferred) to $2 (least preferred). You cannot change your vote after submitting this form.",
   "election-vote-most-preferred": "$1 (most preferred)",
   "election-vote-least-preferred": "$1 (least preferred)",
   "election-vote-button": "Vote",
-  "election-vote-title": "Vote"
+  "election-vote-title": "Vote",
+  "election-vote-yes": "I am comfortable with this candidate",
+  "election-vote-no": "I am not comfortable with this candidate"
 }

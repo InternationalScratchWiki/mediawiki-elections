@@ -30,6 +30,7 @@
 		"ElectionActive": false,
 		"ElectionId": "00000000-0000-0000-0000-000000000000",
 		"ElectionCandidates": [],
-		"ElectionMinRegistrationDate": 0
+		"ElectionMinRegistrationDate": 0,
+		"ElectionCountMethod": "borda"
 	}
 }
