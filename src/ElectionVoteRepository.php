@@ -21,22 +21,47 @@ class ElectionVoteLoader {
 	}
 
 	function getResults(array $candidates) : array {
-		global $wgElectionCandidates;
+		global $wgElectionCountMethod;
 
 		$numCandidates = count($candidates);
 
-		$result = $this->db->select('election_votes', [
-			'candidateId' => 'vote_candidate_id',
-			'score' => $numCandidates . '*COUNT(vote_candidate_rank)-SUM(vote_candidate_rank)+1'
-		], ['vote_election_id' => $this->electionId], __METHOD__, [
-			'ORDER BY score DESC', 'GROUP BY' => 'vote_candidate_id'
-		]);
-
 		$results = [];
+		switch ($wgElectionCountMethod) {
+			case 'confidence':
+				$cols = [
+					'candidateId' => 'vote_candidate_id',
+					'score' => 'SUM(vote_candidate_rank)'
+				];
+				break;
+			case 'borda':
+			default:
+				$cols = [
+					'candidateId' => 'vote_candidate_id',
+					'score' => $numCandidates . '*COUNT(vote_candidate_rank)-SUM(vote_candidate_rank)+1'
+				];
+		}
+		$result = $this->db->select(
+			'election_votes', $cols,
+			['vote_election_id' => $this->electionId], __METHOD__,
+			['ORDER BY score DESC', 'GROUP BY' => 'vote_candidate_id']
+		);
 		foreach ($result as $row) {
 			$results[$candidates[$row->candidateId]] = $row->score;
 		}
-		return $results;
+		$voteCounts = [];
+		$result = $this->db->select(
+			'election_votes',
+			[
+				'candidateId' => 'vote_candidate_id',
+				'numVotes' => 'COUNT(vote_candidate_rank)'
+			],
+			['vote_election_id' => $this->electionId], __METHOD__,
+			['GROUP BY' => 'vote_candidate_id']
+		);
+		foreach ($result as $row) {
+			$voteCounts[$candidates[$row->candidateId]] = $row->numVotes;
+		}
+		return ['results' => $results, 'voteCounts' => $voteCounts];
 	}
 }
 
@@ -46,12 +71,15 @@ class ElectionVoteRepository extends ElectionVoteLoader {
 	}
 
 	function validateVotes(array $votes) : ?string {
-		global $wgElectionCandidates;
+		global $wgElectionCandidates, $wgElectionCountMethod;
 
 		$numCandidates = count($wgElectionCandidates);
 
 		// Duplicate ranks or missing ranks
-		if (count(array_unique($votes)) < $numCandidates) {
+		if (
+			$wgElectionCountMethod === 'borda'
+			&& count(array_unique($votes)) < count($votes)
+		) {
 			return 'duplicate-missing';
 		}
 
@@ -66,9 +94,19 @@ class ElectionVoteRepository extends ElectionVoteLoader {
 			if (!ctype_digit($vote) || strval($rank) !== $vote) {
 				return 'illegal-voting';
 			}
-			// Rank is outside the range
-			if ($rank < 1 || $rank > $numCandidates) {
-				return 'illegal-voting';
+			switch ($wgElectionCountMethod) {
+				case 'confidence':
+					// Not yes/no vote
+					if ($rank !== 0 && $rank !== 1) {
+						return 'illegal-voting';
+					}
+					break;
+				case 'borda':
+				default:
+					// Rank is outside the range
+					if ($rank < 1 || $rank > $numCandidates) {
+						return 'illegal-voting';
+					}
 			}
 		}
 

@@ -67,7 +67,7 @@ class SpecialVote extends SpecialPage {
 	}
 
 	function showVoteForm() {
-		global $wgElectionCandidates;
+		global $wgElectionCandidates, $wgElectionCountMethod;
 		$output = $this->getOutput();
 
 		$numCandidates = count($wgElectionCandidates);
@@ -80,34 +80,70 @@ class SpecialVote extends SpecialPage {
 			'action' => $this->getPageTitle()->getFullURL()
 		]));
 
-		$output->addHTML(Html::openElement('table'));
+		$output->addHTML(Html::openElement('table', ['class' => 'wikitable']));
 
-		$output->addHTML(Html::openElement('tr'));
-		$output->addHTML(Html::element('th', ['scope' => 'row']));
-		for ($rankIdx = 1; $rankIdx <= $numCandidates; $rankIdx++) {
-			$colHeader = $rankIdx;
-			if ($rankIdx === 1) {
-				$colHeader = $this->msg('election-vote-most-preferred')->params($rankIdx)->text();
-			} elseif ($rankIdx === $numCandidates) {
-				$colHeader = $this->msg('election-vote-least-preferred')->params($rankIdx)->text();
-			}
-			$output->addHTML(Html::element('th', ['scope' => 'col'], $colHeader));
-		}
-		$output->addHTML(Html::closeElement('tr'));
-
-		foreach ($wgElectionCandidates as $candidateId => $candidateName) {
-			$output->addHTML(Html::openElement('tr'));
-			$output->addHTML(Html::element('th', ['scope' => 'row'], $candidateName));
-			for ($rankIdx = 1; $rankIdx <= $numCandidates; $rankIdx++) {
-				$output->addHTML(Html::rawElement(
-					'td', ['style' => 'text-align: center'],
-					Html::radio('candidateRank[' . $candidateId . ']', false, [
-						'value' => $rankIdx,
-						'required' => 'true'
-					])
+		switch ($wgElectionCountMethod) {
+			case 'confidence':
+				$output->addHTML(Html::openElement('tr'));
+				$output->addHTML(Html::element('th', ['scope' => 'row']));
+				$output->addHTML(Html::element(
+					'th', ['scope' => 'col'],
+					$this->msg('election-vote-yes')->text()
 				));
-			}
-			$output->addHTML(Html::closeElement('tr'));
+				$output->addHTML(Html::element(
+					'th', ['scope' => 'col'],
+					$this->msg('election-vote-no')->text()
+				));
+				$output->addHTML(Html::closeElement('tr'));
+
+				foreach ($wgElectionCandidates as $candidateId => $candidateName) {
+					$output->addHTML(Html::openElement('tr'));
+					$output->addHTML(Html::element('th', ['scope' => 'row'], $candidateName));
+					$output->addHTML(Html::rawElement(
+						'td', ['style' => 'text-align: center'],
+						Html::radio('candidateRank[' . $candidateId . ']', false, [
+							'value' => 1
+						])
+					));
+					$output->addHTML(Html::rawElement(
+						'td', ['style' => 'text-align: center'],
+						Html::radio('candidateRank[' . $candidateId . ']', false, [
+							'value' => 0
+						])
+					));
+					$output->addHTML(Html::closeElement('tr'));
+				}
+				break;
+			case 'borda':
+			default:
+				$output->addHTML(Html::openElement('tr'));
+				$output->addHTML(Html::element('th', ['scope' => 'row']));
+				for ($rankIdx = 1; $rankIdx <= $numCandidates; $rankIdx++) {
+					$colHeader = $rankIdx;
+					if ($rankIdx === 1) {
+						$colHeader = $this->msg('election-vote-most-preferred')
+							->params($rankIdx)->text();
+					} elseif ($rankIdx === $numCandidates) {
+						$colHeader = $this->msg('election-vote-least-preferred')
+							->params($rankIdx)->text();
+					}
+					$output->addHTML(Html::element('th', ['scope' => 'col'], $colHeader));
+				}
+				$output->addHTML(Html::closeElement('tr'));
+
+				foreach ($wgElectionCandidates as $candidateId => $candidateName) {
+					$output->addHTML(Html::openElement('tr'));
+					$output->addHTML(Html::element('th', ['scope' => 'row'], $candidateName));
+					for ($rankIdx = 1; $rankIdx <= $numCandidates; $rankIdx++) {
+						$output->addHTML(Html::rawElement(
+							'td', ['style' => 'text-align: center'],
+							Html::radio('candidateRank[' . $candidateId . ']', false, [
+								'value' => $rankIdx
+							])
+						));
+					}
+					$output->addHTML(Html::closeElement('tr'));
+				}
 		}
 		$output->addHTML(Html::closeElement('table'));
 

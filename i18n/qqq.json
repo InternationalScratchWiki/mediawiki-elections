@@ -1,4 +1,5 @@
 {
+  "vote": "Title of Special:Vote shown on Special:SpecialPages",
   "right-vote": "Message for vote right",
   "right-viewelectionresults": "Message for viewelectionresults right",
   "action-vote": "Message for vote action",
@@ -15,11 +16,17 @@
   "election-viewelectionresults-empty": "Message shown when there are no election results to display.",
   "election-viewelectionresults-description": "Description for the election results.",
   "election-viewelectionresults-candidate": "Table header for candidates.",
-  "election-viewelectionresults-score": "Table header for scores.",
+  "election-viewelectionresults-score": "Table header for Borda count scores.",
+  "election-viewelectionresults-score-display": "Borda count vote display. $1 is the score, and $2 is the number of votes.",
+  "election-viewelectionresults-result": "Table header for confidence votes.",
+  "election-viewelectionresults-yes": "Display of successful vote of confidence. $1 is the number of votes for, and $2 is the number of total votes.",
+  "election-viewelectionresults-no": "Display of unsuccessful vote of confidence. $1 is the number of votes for, and $2 is the number of total votes.",
   "election-vote-thanks": "Message shown after voting.",
   "election-vote-description": "Description of the voting process. $1 is the rank for the most preferred candidate, and $2 is the rank for the least preferred candidate.",
   "election-vote-most-preferred": "Label for the most preferred candidate. $1 is the rank.",
   "election-vote-least-preferred": "Label for the least preferred candidate. $1 is the rank.",
   "election-vote-button": "Label for the vote button.",
-  "election-vote-title": "Title for Vote special page."
+  "election-vote-title": "Title for Vote special page.",
+  "election-vote-yes": "Label for vote of confidence.",
+  "election-vote-no": "Label for vote of no confidence."
 }
