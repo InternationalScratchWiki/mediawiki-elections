@@ -69,6 +69,24 @@ class ElectionVoteRepository extends ElectionVoteLoader {
 	function __construct($method, $electionId) {
 		parent::__construct($method, $electionId, wfGetDB(DB_MASTER));
 	}
+	
+	static function getEligibilityError(User $user) : ?string {
+		global $wgElectionActive, $wgElectionMinRegistrationDate;
+		
+		if (!$wgElectionActive) {
+			return 'inactive';
+		}
+
+		if ($user->getBlock()) {
+			return 'blocked';
+		}
+
+		if (wfTimestamp(TS_UNIX, $user->getRegistration()) > $wgElectionMinRegistrationDate) {
+			return 'age';
+		}
+		
+		return null;
+	}
 
 	function validateVotes(array $votes) : ?string {
 		global $wgElectionCandidates, $wgElectionCountMethod;
@@ -123,17 +141,10 @@ class ElectionVoteRepository extends ElectionVoteLoader {
 			if ($validationError) {
 				return $validationError;
 			}
-
-			if (!$wgElectionActive) {
-				return 'inactive';
-			}
-
-			if ($user->getBlock()) {
-				return 'blocked';
-			}
-
-			if (wfTimestamp(TS_UNIX, $user->getRegistration()) < $wgElectionMinRegistrationDate) {
-				return 'age';
+			
+			$validationError = self::getEligibilityError($user);
+			if ($validationError) {
+				return $validationError;
 			}
 
 			$this->db->insert('election_voters', [

@@ -160,16 +160,19 @@ class SpecialVote extends SpecialPage {
 	function showVotePage() {
 		global $wgElectionActive, $wgElectionId, $wgElectionMinRegistrationDate;
 
-		if (!$wgElectionActive) {
-			$this->showElectionInactivePage(); return;
-		}
-
-		if ($this->getUser()->getBlock()) {
-			$this->showBlockedPage(); return;
-		}
-
-		if (wfTimestamp(TS_UNIX, $this->getUser()->getRegistration()) < $wgElectionMinRegistrationDate) {
-			$this->showUserTooNewPage(); return;
+		$eligibilityError = ElectionVoteRepository::getEligibilityError($this->getUser());
+		if ($eligibilityError) {
+			switch ($eligibilityError) {
+				case 'inactive':
+					$this->showElectionInactivePage(); return;
+				case 'blocked':
+					$this->showBlockedPage(); return;
+				case 'age':
+					$this->showUserTooNewPage(); return;
+				default:
+					assert(false);
+			}
+			return;
 		}
 
 		$voteLoader = new ElectionVoteLoader(__METHOD__, $wgElectionId);
