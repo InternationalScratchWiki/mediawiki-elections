@@ -1,4 +1,5 @@
 {
+	"manifest_version": 1,
 	"name": "MediaWiki Election System",
 	"descriptionmsg": "election-desc",
 	"author": ["Jacob G. (jvvg)", "apple502j"],
