@@ -1,8 +1,11 @@
 {
-	"manifest_version": 1,
+	"manifest_version": 2,
 	"name": "MediaWiki Election System",
 	"descriptionmsg": "election-desc",
-	"author": ["Jacob G. (jvvg)", "apple502j"],
+	"author": [
+		"Jacob G. (jvvg)",
+		"apple502j"
+	],
 	"url": "https://github.com/InternationalScratchWiki/mediawiki-elections",
 	"version": "0.1",
 	"license-name": "GPL-2.0-or-later",
@@ -23,15 +26,32 @@
 		"ElectionResults": "SpecialElectionResults"
 	},
 	"Hooks": {
-		"LoadExtensionSchemaUpdates": "ElectionHooks::onLoadExtensionSchemaUpdates"
+		"LoadExtensionSchemaUpdates": "main"
 	},
-	"ResourceModules": {
+	"HookHandlers": {
+		"main": {
+			"class": "ElectionHooks"
+		}
 	},
+	"ResourceModules": [],
 	"config": {
-		"ElectionActive": false,
-		"ElectionId": "00000000-0000-0000-0000-000000000000",
-		"ElectionCandidates": [],
-		"ElectionMinRegistrationDate": 0,
-		"ElectionCountMethod": "borda"
+		"ElectionActive": {
+			"value": false
+		},
+		"ElectionId": {
+			"value": "00000000-0000-0000-0000-000000000000"
+		},
+		"ElectionCandidates": {
+			"value": []
+		},
+		"ElectionMinRegistrationDate": {
+			"value": 0
+		},
+		"ElectionCountMethod": {
+			"value": "borda"
+		}
+	},
+	"requires": {
+		"MediaWiki": ">= 1.29.0"
 	}
 }
