@@ -1,6 +1,6 @@
 <?php
 
-use MediaWiki\Installer\Hook\LoadExtensionSchemaUpdates;
+use MediaWiki\Installer\Hook\LoadExtensionSchemaUpdatesHook;
 
 class ElectionHooks implements LoadExtensionSchemaUpdatesHook {
 	public function onLoadExtensionSchemaUpdates($updater) {

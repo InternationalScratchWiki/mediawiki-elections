@@ -22,8 +22,18 @@
 		"ElectionVoteRepository": "src/ElectionVoteRepository.php"
 	},
 	"SpecialPages": {
-		"Vote": "SpecialVote",
-		"ElectionResults": "SpecialElectionResults"
+		"Vote": {
+			"class": "SpecialVote",
+			"services": [
+				"DBLoadBalancer"
+			]
+		},
+		"ElectionResults": {
+			"class": "SpecialElectionResults",
+			"services": [
+				"DBLoadBalancer"
+			]
+		}
 	},
 	"Hooks": {
 		"LoadExtensionSchemaUpdates": "main"
@@ -52,6 +62,6 @@
 		}
 	},
 	"requires": {
-		"MediaWiki": ">= 1.29.0"
+		"MediaWiki": ">= 1.35.0"
 	}
 }

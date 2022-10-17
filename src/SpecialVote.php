@@ -1,16 +1,35 @@
 <?php
+
+use Wikimedia\Rdbms\ILoadBalancer;
+
 class SpecialVote extends SpecialPage {
-	function __construct() {
+	private ILoadBalancer $loadBalancer;
+
+	function __construct(ILoadBalancer $loadBalancer) {
 		parent::__construct('Vote', 'vote');
+		$this->loadBalancer = $loadBalancer;
+	}
+
+	function setCSRFToken() {
+		$session = $this->getRequest()->getSession();
+		$session->persist();
+		$csrftoken = $session->getToken();
+		$session->save();
+		return $csrftoken;
+	}
+
+	function isCSRF($csrftoken) {
+		$session = $this->getRequest()->getSession();
+		return !$session->getToken()->match($csrftoken);
 	}
 
 	function handleVoteSubmission() {
-		global $wgElectionCandidates, $wgElectionId;
+		global $wgElectionId;
 
 		$request = $this->getRequest();
 		$output = $this->getOutput();
 
-		if ( !$this->getUser()->matchEditToken( $request->getVal( 'token' ) ) ) {
+		if ($this->isCSRF($request->getText('token'))) {
 			$output->addWikiMsg('sessionfailure');
 			$output->addReturnTo($this->getPageTitle());
 			return;
@@ -23,7 +42,11 @@ class SpecialVote extends SpecialPage {
 			$output->addReturnTo($this->getPageTitle());
 			return;
 		}
-		$voteRepo = new ElectionVoteRepository(__METHOD__, $wgElectionId);
+		$voteRepo = new ElectionVoteRepository(
+			__METHOD__,
+			$wgElectionId,
+			$this->loadBalancer->getConnection(defined('DB_PRIMARY') ? DB_PRIMARY : DB_MASTER)
+		);
 		$message = $voteRepo->addVotes($this->getUser(), $votes);
 
 		if ($message) {
@@ -87,11 +110,13 @@ class SpecialVote extends SpecialPage {
 				$output->addHTML(Html::openElement('tr'));
 				$output->addHTML(Html::element('th', ['scope' => 'row']));
 				$output->addHTML(Html::element(
-					'th', ['scope' => 'col'],
+					'th',
+					['scope' => 'col'],
 					$this->msg('election-vote-yes')->text()
 				));
 				$output->addHTML(Html::element(
-					'th', ['scope' => 'col'],
+					'th',
+					['scope' => 'col'],
 					$this->msg('election-vote-no')->text()
 				));
 				$output->addHTML(Html::closeElement('tr'));
@@ -100,13 +125,15 @@ class SpecialVote extends SpecialPage {
 					$output->addHTML(Html::openElement('tr'));
 					$output->addHTML(Html::element('th', ['scope' => 'row'], $candidateName));
 					$output->addHTML(Html::rawElement(
-						'td', ['style' => 'text-align: center'],
+						'td',
+						['style' => 'text-align: center'],
 						Html::radio('candidateRank[' . $candidateId . ']', false, [
 							'value' => 1
 						])
 					));
 					$output->addHTML(Html::rawElement(
-						'td', ['style' => 'text-align: center'],
+						'td',
+						['style' => 'text-align: center'],
 						Html::radio('candidateRank[' . $candidateId . ']', false, [
 							'value' => 0
 						])
@@ -136,7 +163,8 @@ class SpecialVote extends SpecialPage {
 					$output->addHTML(Html::element('th', ['scope' => 'row'], $candidateName));
 					for ($rankIdx = 1; $rankIdx <= $numCandidates; $rankIdx++) {
 						$output->addHTML(Html::rawElement(
-							'td', ['style' => 'text-align: center'],
+							'td',
+							['style' => 'text-align: center'],
 							Html::radio('candidateRank[' . $candidateId . ']', false, [
 								'value' => $rankIdx
 							])
@@ -147,7 +175,7 @@ class SpecialVote extends SpecialPage {
 		}
 		$output->addHTML(Html::closeElement('table'));
 
-		$output->addHTML(Html::hidden('token', $this->getUser()->getEditToken()));
+		$output->addHTML(Html::hidden('token', $this->setCSRFToken()));
 
 		$output->addHTML(Html::element('input', [
 			'type' => 'submit',
@@ -158,26 +186,30 @@ class SpecialVote extends SpecialPage {
 	}
 
 	function showVotePage() {
-		global $wgElectionActive, $wgElectionId, $wgElectionMinRegistrationDate;
+		global $wgElectionId;
 
 		$eligibilityError = ElectionVoteRepository::getEligibilityError($this->getUser());
 		if ($eligibilityError) {
 			switch ($eligibilityError) {
 				case 'inactive':
-					$this->showElectionInactivePage(); return;
+					$this->showElectionInactivePage();
+					return;
 				case 'blocked':
-					$this->showBlockedPage(); return;
+					$this->showBlockedPage();
+					return;
 				case 'age':
-					$this->showUserTooNewPage(); return;
+					$this->showUserTooNewPage();
+					return;
 				default:
 					assert(false);
 			}
 			return;
 		}
 
-		$voteLoader = new ElectionVoteLoader(__METHOD__, $wgElectionId);
+		$voteLoader = new ElectionVoteLoader(__METHOD__, $wgElectionId, $this->loadBalancer->getConnection(DB_REPLICA));
 		if ($voteLoader->hasUserVoted($this->getUser())) {
-			$this->showAlreadyVotedPage(); return;
+			$this->showAlreadyVotedPage();
+			return;
 		}
 
 		$this->showVoteForm();
