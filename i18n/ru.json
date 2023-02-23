@@ -14,7 +14,7 @@
   "election-error-empty-form": "Пожалуйста, выберите оценку для каждого кандидата.",
   "election-viewelectionresults-title": "Результаты выборов",
   "election-viewelectionresults-empty": "Голоса отсутствуют.",
-  "election-viewelectionresults-description": "Это счёт самых поздних выборов.",
+  "election-viewelectionresults-description": "Это результаты самых последних выборов.",
   "election-viewelectionresults-candidate": "Кандидат",
   "election-viewelectionresults-score": "Баллы",
   "election-viewelectionresults-score-display": "$1 (из $2 {{PLURAL:$2|голоса|голосов}})",
