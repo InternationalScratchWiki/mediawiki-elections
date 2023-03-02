@@ -1,8 +1,13 @@
 {
+  "@metadata": {
+		"authors": [
+			"Gohoski"
+		]
+	}
   "vote": "Голосовать на выборах",
   "right-vote": "Проголосовать",
   "right-viewelectionresults": "Посмотреть результаты выборов",
-  "action-vote": "голосовать",
+  "action-vote": "проголосовать",
   "action-viewelectionresults": "посмотреть результаты выборов",
   "election-desc": "Добавляет спецстраницу для голосований.",
   "election-error-duplicate-missing": "Оценки кандидатов должны быть различными и Вы должны выбрать оценку для каждого кандидата.",
@@ -23,7 +28,7 @@
   "election-viewelectionresults-no": "Нет ($1 {{PLURAL:$1|голос|голоса|голосов}} за/$2 всего)",
   "election-vote-thanks": "Спасибо за голос.",
   "election-vote-description": "Пожалуйста, оцените каждого из этих кандидатов по порядку удовлетворяемости, начиная с $1 (наиболее удовлетворяемый) до $2 (наименее удовлетворяемый). Вы не можете изменить свой голос после отправки этой формы.",
-  "election-vote-most-preferred": "$1 (самый удовлетворяемый)",
+  "election-vote-most-preferred": "$1 (наиболее удовлетворяемый)",
   "election-vote-least-preferred": "$1 (наименее удовлетворяемый)",
   "election-vote-button": "Проголосовать",
   "election-vote-title": "Голосовать",
