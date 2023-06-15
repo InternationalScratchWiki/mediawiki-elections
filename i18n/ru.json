@@ -1,9 +1,9 @@
 {
   "@metadata": {
-		"authors": [
-			"Gohoski"
-		]
-	}
+    "authors": [
+      "Gohoski"
+    ]
+  },
   "vote": "Голосовать на выборах",
   "right-vote": "Проголосовать",
   "right-viewelectionresults": "Посмотреть результаты выборов",
@@ -11,8 +11,8 @@
   "action-viewelectionresults": "посмотреть результаты выборов",
   "election-desc": "Добавляет спецстраницу для голосований.",
   "election-error-duplicate-missing": "Оценки кандидатов должны быть различными и Вы должны выбрать оценку для каждого кандидата.",
-  "election-error-illegal-voting": "Обнаружено нелегальное голосование. Попробуйте ещё раз.",
-  "election-error-inactive": "На данынй момент выборы не проводятся.",
+  "election-error-illegal-voting": "Обнаружено нелегальное голосование. Повторите попытку ещё раз.",
+  "election-error-inactive": "На данный момент выборы не проводятся.",
   "election-error-blocked": "Вы заблокированы и не можете голосовать.",
   "election-error-age": "Ваш аккаунт слишком молод.",
   "election-error-voted": "Вы уже голосовали в этих выборах.",
@@ -22,12 +22,12 @@
   "election-viewelectionresults-description": "Это результаты самых последних выборов.",
   "election-viewelectionresults-candidate": "Кандидат",
   "election-viewelectionresults-score": "Баллы",
-  "election-viewelectionresults-score-display": "$1 (из $2 {{PLURAL:$2|голоса|голосов}})",
+  "election-viewelectionresults-score-display": "$1 (из $2 {{PLURAL:$2|голоса|голоса|голосов}})",
   "election-viewelectionresults-result": "Результат",
   "election-viewelectionresults-yes": "Да ($1 {{PLURAL:$1|голос|голоса|голосов}} за/$2 всего)",
   "election-viewelectionresults-no": "Нет ($1 {{PLURAL:$1|голос|голоса|голосов}} за/$2 всего)",
-  "election-vote-thanks": "Спасибо за голос.",
-  "election-vote-description": "Пожалуйста, оцените каждого из этих кандидатов по порядку удовлетворяемости, начиная с $1 (наиболее удовлетворяемый) до $2 (наименее удовлетворяемый). Вы не можете изменить свой голос после отправки этой формы.",
+  "election-vote-thanks": "Спасибо за Ваш голос.",
+  "election-vote-description": "Пожалуйста, оцените каждого из этих кандидатов по порядку удовлетворяемости, начиная с $1 (наиболее удовлетворяемый) до $2 (наименее удовлетворяемый). Вы не cможете cменить свой голос после отправки этой формы.",
   "election-vote-most-preferred": "$1 (наиболее удовлетворяемый)",
   "election-vote-least-preferred": "$1 (наименее удовлетворяемый)",
   "election-vote-button": "Проголосовать",
