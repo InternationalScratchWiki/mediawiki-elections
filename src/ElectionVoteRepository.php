@@ -37,7 +37,7 @@ class ElectionVoteLoader {
 			default:
 				$cols = [
 					'candidateId' => 'vote_candidate_id',
-					'score' => $numCandidates . '*COUNT(vote_candidate_rank)-SUM(vote_candidate_rank)+1'
+					'score' => 'SUM(' . ($numCandidates + 1) . '-vote_candidate_rank)'
 				];
 		}
 		$result = $this->db->select(
