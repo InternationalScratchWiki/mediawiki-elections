@@ -3,12 +3,8 @@ class ElectionVoteLoader {
 	protected $db;
 	protected $electionId;
 
-	function __construct(string $method, string $electionId, ?IDatabase $db = null) {
-		if ($db === null) {
-			$this->db = wfGetDB(DB_REPLICA);
-		} else {
-			$this->db = $db;
-		}
+	function __construct(string $method, string $electionId, IDatabase $db) {
+		$this->db = $db;
 
 		$this->electionId = $electionId;
 	}
@@ -66,8 +62,8 @@ class ElectionVoteLoader {
 }
 
 class ElectionVoteRepository extends ElectionVoteLoader {
-	function __construct($method, $electionId) {
-		parent::__construct($method, $electionId, wfGetDB(DB_MASTER));
+	function __construct($method, $electionId, IDatabase $db) {
+		parent::__construct($method, $electionId, $db);
 	}
 	
 	static function getEligibilityError(User $user) : ?string {
@@ -81,7 +77,7 @@ class ElectionVoteRepository extends ElectionVoteLoader {
 			return 'blocked';
 		}
 
-		if (wfTimestamp(TS_UNIX, $user->getRegistration()) > $wgElectionMinRegistrationDate) {
+		if ($wgElectionMinRegistrationDate && wfTimestamp(TS_UNIX, $user->getRegistration()) > $wgElectionMinRegistrationDate) {
 			return 'age';
 		}
 		
@@ -132,8 +128,6 @@ class ElectionVoteRepository extends ElectionVoteLoader {
 	}
 
 	function addVotes(User $user, array $votes) : ?string {
-		global $wgElectionActive, $wgElectionMinRegistrationDate;
-
 		$this->db->startAtomic(__METHOD__);
 
 		try {

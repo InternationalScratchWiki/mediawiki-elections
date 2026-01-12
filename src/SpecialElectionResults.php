@@ -1,18 +1,24 @@
 <?php
+
+use Wikimedia\Rdbms\ILoadBalancer;
+
 class SpecialElectionResults extends SpecialPage {
-	function __construct() {
+	private ILoadBalancer $loadBalancer;
+
+	function __construct(ILoadBalancer $loadBalancer) {
 		parent::__construct('ElectionResults', 'viewelectionresults');
+		$this->loadBalancer = $loadBalancer;
 	}
 
 	function execute($par) {
-		global $wgElectionActive, $wgElectionId, $wgElectionCandidates, $wgElectionCountMethod;
+		global $wgElectionId, $wgElectionCandidates, $wgElectionCountMethod;
 
 		$output = $this->getOutput();
 		$output->setPageTitle($this->msg('election-viewelectionresults-title')->escaped());
 
 		$this->checkPermissions();
 
-		$voteLoader = new ElectionVoteLoader(__METHOD__, $wgElectionId);
+		$voteLoader = new ElectionVoteLoader(__METHOD__, $wgElectionId, $this->loadBalancer->getConnection(DB_REPLICA));
 		$electionResults = $voteLoader->getResults($wgElectionCandidates);
 		$results = $electionResults['results'];
 		$voteCounts = $electionResults['voteCounts'];
@@ -29,7 +35,8 @@ class SpecialElectionResults extends SpecialPage {
 		$output->addHTML(Html::openElement('tr'));
 
 		$output->addHTML(Html::element(
-			'th', ['scope' => 'col'],
+			'th',
+			['scope' => 'col'],
 			$this->msg('election-viewelectionresults-candidate')->text()
 		));
 		switch ($wgElectionCountMethod) {
@@ -41,7 +48,8 @@ class SpecialElectionResults extends SpecialPage {
 				$resultKey = 'score';
 		}
 		$output->addHTML(Html::element(
-			'th', ['scope' => 'col'],
+			'th',
+			['scope' => 'col'],
 			$this->msg('election-viewelectionresults-' . $resultKey)->text()
 		));
 
@@ -66,7 +74,8 @@ class SpecialElectionResults extends SpecialPage {
 					$key = 'election-viewelectionresults-score-display';
 			}
 			$output->addHTML(Html::element('td', [], $this->msg($key)->params(
-				$score, $voteCount
+				$score,
+				$voteCount
 			)));
 
 			$output->addHTML(Html::closeElement('tr'));
